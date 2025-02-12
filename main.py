@@ -13,6 +13,8 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
+# TODO: do a versioned db for storing the previous history of winners
+
 # Database setup
 db_name = os.getenv("DB_NAME")
 db_user = os.getenv("DB_USER")
@@ -51,11 +53,11 @@ def add_winner(user: Dict):
             user_id = user["id"]
             email = user["email"]
             state = user["address"]["state"]
-            
+
             cursor.execute("""
                 INSERT INTO winners (id, email, state)
                 VALUES (%s, %s, %s)
-                ON CONFLICT (state) 
+                ON CONFLICT (state)
                 DO UPDATE SET id = EXCLUDED.id, email = EXCLUDED.email
             """, (user_id, email, state))
             logging.info(f"Added/Updated winner for state {state}: {email}")
@@ -84,14 +86,14 @@ def main():
         if len(get_winner_states()) >= 25:
             logging.info("Lottery complete!")
             break
-        
+
         users = fetch_users()
         for user in users:
             if "address" in user and "state" in user["address"]:
                 add_winner(user)
-        
+
         time.sleep(10)  # Wait 10 seconds before fetching again
-    
+
     print_winners()
 
 if __name__ == "__main__":
