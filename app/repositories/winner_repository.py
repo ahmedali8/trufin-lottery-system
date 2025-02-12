@@ -1,7 +1,7 @@
 from app.db.db_connection import get_db_connection
 from datetime import datetime
 from app.utils.config import TABLE_PREFIX
-from app.utils.logger import log_info, log_winner
+from app.utils.logger import log_info, log_error, log_winner
 
 
 def get_new_version():
@@ -11,7 +11,11 @@ def get_new_version():
     conn = get_db_connection()
     with conn.cursor() as cursor:
         cursor.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_name LIKE %s", (TABLE_PREFIX + '%',))
-        version = cursor.fetchone()[0] + 1
+        result = cursor.fetchone()
+        if result is None:
+            log_error("Failed to retrieve table count. Defaulting to version 1.")
+            return 1
+        version = result[0] + 1
     log_info(f"Generated new version: {version}")
     return version
 
