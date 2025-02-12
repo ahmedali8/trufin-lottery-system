@@ -1,6 +1,10 @@
 from app.services.lottery_service import process_winners
 
 
-if __name__ == "__main__":
+def main():
     process_winners()
+
+
+if __name__ == "__main__":
+    main()
 
