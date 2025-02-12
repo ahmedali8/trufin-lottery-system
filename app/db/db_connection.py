@@ -1,9 +1,12 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from app.utils.config import DB_CONFIG
+from app.utils.logger import log_info, log_error
+
 
 # Global database connection instance
 _connection = None
+
 
 def get_db_connection():
     """
@@ -16,11 +19,12 @@ def get_db_connection():
                 f"dbname={DB_CONFIG['dbname']} user={DB_CONFIG['user']} password={DB_CONFIG['password']} host={DB_CONFIG['host']} port={DB_CONFIG['port']}",
                 cursor_factory=RealDictCursor
             )
-            print("[INFO] Database connection established.")
+            log_info(f"[INFO] Database connection established.")
         except Exception as e:
-            print(f"[ERROR] Failed to connect to database: {e}")
+            log_error(f"[ERROR] Failed to connect to database: {e}")
             _connection = None
     return _connection
+
 
 def close_connection():
     """
@@ -29,8 +33,9 @@ def close_connection():
     global _connection
     if _connection:
         _connection.close()
-        print("[INFO] Database connection closed.")
+        log_info(f"[INFO] Database connection closed.")
         _connection = None
+
 
 def get_cursor():
     """
@@ -40,3 +45,4 @@ def get_cursor():
     if conn:
         return conn.cursor()
     return None
+

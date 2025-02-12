@@ -1,8 +1,6 @@
 from app.repositories.winner_repository import insert_winner, get_winners, get_winner_count
-from app.utils.logger import get_logger
+from app.utils.logger import log_info, log_error
 
-# Initialize logger
-logger = get_logger(__name__)
 
 def add_winner(email: str, state: str, table_name: str):
     """
@@ -10,9 +8,10 @@ def add_winner(email: str, state: str, table_name: str):
     """
     try:
         insert_winner(email, state, table_name)
-        logger.info(f"Successfully added or updated winner: {email} for state {state} in table {table_name}")
+        log_info(f"Successfully added or updated winner: {email} for state {state} in table {table_name}")
     except Exception as e:
-        logger.error(f"Error adding winner: {e}")
+        log_error(f"Error adding winner: {e}")
+
 
 def get_all_winners(table_name: str):
     """
@@ -20,11 +19,12 @@ def get_all_winners(table_name: str):
     """
     try:
         winners = get_winners(table_name)
-        logger.info(f"Retrieved {len(winners)} winners from {table_name}")
+        log_info(f"Retrieved {len(winners)} winners from {table_name}")
         return winners
     except Exception as e:
-        logger.error(f"Error fetching winners: {e}")
+        log_error(f"Error fetching winners: {e}")
         return []
+
 
 def count_winners(table_name: str) -> int:
     """
@@ -32,8 +32,9 @@ def count_winners(table_name: str) -> int:
     """
     try:
         count = get_winner_count(table_name)
-        logger.info(f"Winner count for {table_name}: {count}")
+        log_info(f"Winner count for {table_name}: {count}")
         return count
     except Exception as e:
-        logger.error(f"Error counting winners: {e}")
+        log_error(f"Error counting winners: {e}")
         return 0
+

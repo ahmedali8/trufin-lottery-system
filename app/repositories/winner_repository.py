@@ -1,10 +1,8 @@
 from app.db.db_connection import get_db_connection
 from datetime import datetime
 from app.utils.config import TABLE_PREFIX
-from app.utils.logger import get_logger
+from app.utils.logger import log_info, log_winner
 
-# Initialize logger
-logger = get_logger(__name__)
 
 def get_new_version():
     """
@@ -14,8 +12,9 @@ def get_new_version():
     with conn.cursor() as cursor:
         cursor.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_name LIKE %s", (TABLE_PREFIX + '%',))
         version = cursor.fetchone()[0] + 1
-    logger.info(f"Generated new version: {version}")
+    log_info(f"Generated new version: {version}")
     return version
+
 
 def create_versioned_table(version: int):
     """
@@ -33,8 +32,9 @@ def create_versioned_table(version: int):
             )
         """)
         conn.commit()
-    logger.info(f"Created new table: {table_name}")
+    log_info(f"Created new table: {table_name}")
     return table_name
+
 
 def insert_winner(email: str, state: str, table_name: str):
     """
@@ -47,11 +47,12 @@ def insert_winner(email: str, state: str, table_name: str):
 
         if existing_winner:
             cursor.execute(f"UPDATE {table_name} SET email = %s WHERE state = %s", (email, state))
-            logger.info(f"Updated winner in {table_name}: {email} for state {state}")
+            log_winner(email, state, table_name, is_update=True)   # For updates
         else:
             cursor.execute(f"INSERT INTO {table_name} (email, state) VALUES (%s, %s)", (email, state))
-            logger.info(f"Inserted new winner in {table_name}: {email} for state {state}")
+            log_winner(email, state, table_name, is_update=False)  # For inserts
         conn.commit()
+
 
 def get_winners(table_name: str):
     """
@@ -61,8 +62,9 @@ def get_winners(table_name: str):
     with conn.cursor() as cursor:
         cursor.execute(f"SELECT * FROM {table_name}")
         winners = cursor.fetchall()
-    logger.info(f"Fetched {len(winners)} winners from {table_name}")
+    log_info(f"Fetched {len(winners)} winners from {table_name}")
     return winners
+
 
 def get_winner_count(table_name: str) -> int:
     """
@@ -72,5 +74,6 @@ def get_winner_count(table_name: str) -> int:
     with conn.cursor() as cursor:
         cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
         count = cursor.fetchone()[0]
-    logger.info(f"Total winners in {table_name}: {count}")
+    log_info(f"Total winners in {table_name}: {count}")
     return count
+

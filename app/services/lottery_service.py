@@ -2,12 +2,10 @@ import time
 from app.repositories.winner_repository import (
     create_versioned_table, insert_winner, get_winner_count, get_winners, get_new_version
 )
-from app.api.fetch_random_users import fetch_random_users
-from app.utils.logger import get_logger
-from app.utils.constants import MAX_WINNER_COUNT
+from app.api.fetch_random_users import fetch_default_users
+from app.utils.logger import log_info, log_winner, log_final_winners
+from app.utils.constants import MAX_WINNER_COUNT, DEFAULT_SLEEP_TIME
 
-# Initialize logger
-logger = get_logger(__name__)
 
 def process_winners():
     """
@@ -17,7 +15,7 @@ def process_winners():
     table_name = create_versioned_table(version)
 
     while get_winner_count(table_name) < MAX_WINNER_COUNT:
-        users = fetch_random_users()
+        users = fetch_default_users()
         for user in users:
             state = user.get("address", {}).get("state")
             email = user.get("email")
@@ -29,13 +27,15 @@ def process_winners():
 
                 # Determine if it's an update or insert
                 if existing_count < get_winner_count(table_name):
-                    logger.info(f"New winner added: {email} from {state} in table {table_name}")
+                    log_winner(email, state, table_name, is_update=False)
                 else:
-                    logger.info(f"Updated existing winner: {email} from {state} in table {table_name}")
+                    log_winner(email, state, table_name, is_update=True)
 
                 if get_winner_count(table_name) >= 25:
                     break
-        time.sleep(10)
+        time.sleep(DEFAULT_SLEEP_TIME)
 
     winners = get_winners(table_name)
-    logger.info(f"Lottery completed. Total winners stored in {table_name}: {len(winners)}")
+    log_final_winners(table_name, winners)
+    log_info(f"Lottery process completed for table: {table_name}")
+

@@ -1,11 +1,10 @@
 import requests
 from app.utils.config import API_URL
-from app.utils.logger import get_logger
+from app.utils.logger import log_info, log_error
+from app.utils.constants import DEFAULT_WINNER_SIZE
 
-# Initialize logger
-logger = get_logger(__name__)
 
-def fetch_random_users(size=5):
+def fetch_random_users(size: int):
     """
     Fetches a list of random users from the external API.
 
@@ -20,11 +19,12 @@ def fetch_random_users(size=5):
         response = requests.get(url)
         response.raise_for_status()
         users = response.json()
-        logger.info(f"Successfully fetched {len(users)} users.")
+        log_info(f"Successfully fetched {len(users)} users.")
         return users
     except requests.exceptions.RequestException as e:
-        logger.error(f"Error fetching random users: {e}")
+        log_error(f"Error fetching random users: {e}")
         return []
+
 
 def fetch_default_users():
     """
@@ -33,4 +33,5 @@ def fetch_default_users():
     Returns:
         list: A list of user dictionaries if successful, else an empty list.
     """
-    return fetch_random_users(size=5)
+    return fetch_random_users(size=DEFAULT_WINNER_SIZE)
+
