@@ -5,7 +5,7 @@ from app.utils.config import DB_CONFIG
 # Global database connection instance
 _connection = None
 
-def get_connection():
+def get_db_connection():
     """
     Establishes and returns a connection to the PostgreSQL database.
     """
@@ -36,7 +36,7 @@ def get_cursor():
     """
     Returns a new cursor object for executing queries.
     """
-    conn = get_connection()
+    conn = get_db_connection()
     if conn:
         return conn.cursor()
     return None
