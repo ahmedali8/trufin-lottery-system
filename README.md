@@ -73,7 +73,7 @@ make start
 To verify that the system is working correctly, run the unit tests:
 
 ```bash
-PYTHONPATH=. uv run python -m unittest discover tests
+uv run pytest
 ```
 
 or use `Makefile`:
