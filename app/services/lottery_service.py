@@ -38,4 +38,5 @@ def process_winners():
     winners = get_winners(table_name)
     log_final_winners(table_name, winners)
     log_info(f"Lottery process completed for table: {table_name}")
+    return winners
 
